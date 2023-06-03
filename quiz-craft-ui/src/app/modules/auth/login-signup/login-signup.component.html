@@ -1,0 +1,73 @@
+<app-spinner [isLoading]="(isLoading$ |async) || false || loading" [message]="loadingMsg">
+
+</app-spinner>
+
+<div class="center-content">
+    <mat-card class="login-signup-card">
+        <mat-card-header>
+            <mat-card-title>Login/Register</mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+            <mat-tab-group>
+                <!-- Login Tab -->
+                <mat-tab label="Login">
+                    <form [formGroup]="loginForm" (ngSubmit)="loginForm.valid && submit()">
+                        <p-messages *ngIf="showLoginError$ | async" [(value)]="message" [enableService]="false"
+                            [closable]="true"></p-messages>
+                        <mat-form-field class="form-full-width">
+                            <mat-label>Email</mat-label>
+                            <input type="email" matInput placeholder="Email" name="email" formControlName="username">
+                            <mat-icon matSuffix>email</mat-icon>
+                        </mat-form-field>
+
+                        <mat-form-field class="form-full-width">
+                            <mat-label>Password</mat-label>
+                            <input type="password" matInput placeholder="Password" name="password"
+                                formControlName="password">
+                        </mat-form-field>
+                        <button mat-button color="primary" type="submit">Login</button>
+                    </form>
+                </mat-tab>
+
+                <!-- Register Tab -->
+                <mat-tab label="Register">
+                    <form #RegisterForm="ngForm">
+
+                        <mat-form-field class="form-full-width">
+                            <mat-label>First Name</mat-label>
+                            <input type="text" matInput name="firstname" [(ngModel)]="createUser.firstname">
+
+                        </mat-form-field>
+                        <mat-form-field class="form-full-width">
+                            <mat-label>Last Name</mat-label>
+                            <input type="text" matInput name="lastname" [(ngModel)]="createUser.lastname">
+
+                        </mat-form-field>
+                        <mat-form-field class="form-full-width">
+                            <mat-label>Email</mat-label>
+                            <input type="email" matInput placeholder="Email" name="email"
+                                [(ngModel)]="createUser.email">
+                            <mat-icon matSuffix>email</mat-icon>
+                        </mat-form-field>
+
+                        <mat-form-field class="form-full-width">
+                            <mat-label>Password</mat-label>
+                            <input type="password" matInput placeholder="Password" name="password"
+                                [(ngModel)]="createUser.password">
+                        </mat-form-field>
+                        <mat-form-field class="form-full-width">
+                            <mat-label>Confirm Password</mat-label>
+                            <input type="password" matInput placeholder="Confirm Password" name="confirmPassword"
+                                [(ngModel)]="createUser.confirmPassword" appearance="outline">
+                        </mat-form-field>
+
+                        <p-button type="submit" label="Submit" (click)="register(RegisterForm)"></p-button>
+                    </form>
+                </mat-tab>
+
+            </mat-tab-group>
+
+        </mat-card-content>
+
+    </mat-card>
+</div>

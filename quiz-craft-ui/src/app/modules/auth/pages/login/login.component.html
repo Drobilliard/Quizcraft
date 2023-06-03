@@ -1,0 +1,22 @@
+<!-- Login Tab -->
+<mat-tab label="Login">
+    <form [formGroup]="loginForm" (ngSubmit)="loginForm.valid && submit()">
+        <p-messages *ngIf="showLoginError$ | async" [(value)]="message" [enableService]="false"
+            [closable]="true"></p-messages>
+        <mat-form-field class="form-full-width">
+            <mat-label>Email</mat-label>
+            <input type="email" matInput placeholder="Email" name="email" formControlName="username">
+            <mat-icon matSuffix>email</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field class="form-full-width">
+            <mat-label>Password</mat-label>
+            <input type="password" matInput placeholder="Password" name="password" formControlName="password">
+        </mat-form-field>
+        <button mat-button color="primary" type="submit">Login</button>
+    </form>
+</mat-tab>
+<app-spinner [isLoading]="(isLoading$ |async) || false" [message]="loadingMsg">
+
+</app-spinner>
+<p>Login works!</p>

@@ -1,0 +1,96 @@
+---
+version: '3'
+services:
+  keycloak-mysql:
+    container_name: keycloak-mysql
+    image: mysql:5.7
+    volumes:
+      - ./mysql_keycloak_data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: keycloak
+      MYSQL_USER: keycloak
+      MYSQL_PASSWORD: password
+    networks:
+      - quiz-craft-network
+
+  keycloak:
+    container_name: keycloak
+    image: quay.io/keycloak/keycloak:18.0.0
+    command: [ "start-dev", "--import-realm" ]
+    environment:
+      DB_VENDOR: MYSQL
+      DB_ADDR: mysql
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_PASSWORD: password
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./realms/:/opt/keycloak/data/import/
+    depends_on:
+      - keycloak-mysql
+    networks:
+      - quiz-craft-network
+
+  postgres-quizcraft:
+    container_name: postgres-quizcraft
+    image: postgres
+    environment:
+      POSTGRES_DB: quizcraft
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: password
+      PGDATA: /data/postgres
+    volumes:
+      - ./postgres-quizcraft:/data/postgres
+    expose:
+      - "5431"
+    ports:
+      - "5431:5431"
+    command: -p 5431
+    restart: always
+    networks:
+      - quiz-craft-network
+
+  discovery-server:
+    container_name: discovery-server
+    image: quizcraft/discovery-server:0.0.1-SNAPSHOT
+    ports:
+      - "8761:8761"
+    networks:
+      - quiz-craft-network
+
+  api-gateway:
+    container_name: api-gateway
+    image: quizcraft/api-gateway:0.0.1-SNAPSHOT
+    ports:
+      - "8181:8080"
+    expose:
+      - "8181"
+    depends_on:
+      - discovery-server
+      - keycloak
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - LOGGING_LEVEL_ORG_SPRINGFRAMEWORK_SECURITY= TRACE
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER-URI=http://keycloak:8080/realms/quiz-craft-auth
+    networks:
+      - quiz-craft-network
+
+  main-service:
+    container_name: main-service
+    image: quizcraft/main-service:0.0.1-SNAPSHOT
+    depends_on:
+      - discovery-server
+      - api-gateway
+      - postgres-quizcraft
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres-quizcraft:5431/quizcraft
+    networks:
+      - quiz-craft-network
+
+networks:
+  quiz-craft-network:

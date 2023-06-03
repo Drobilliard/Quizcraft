@@ -1,0 +1,54 @@
+server:
+  port: 0
+app:
+  eureka: localhost
+# Spring configuration
+spring:
+  application:
+    name: main-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/exam_portal
+    username: root
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://${app.eureka}:8761/eureka
+
+#Resilinece4j Properties
+resilience4j:
+  circuitbreaker:
+    instances:
+      main:
+        registerHealthIndicator: true
+        event-consumer-buffer-size: 10
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 5
+        failureRateThreshold: 50
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        enableExponentialBackOff: true
+  #Resilience4J Timeout Properties
+  timelimiter:
+    instances:
+      main:
+        timeout-duration: 1s
+  #Resilience4J Retry Properties
+  retry:
+    instances:
+      main:
+        max-attempts: 3
+        wait-duration: 5s
